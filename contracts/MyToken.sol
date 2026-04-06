@@ -12,6 +12,8 @@ contract MyToken {
     //토큰이 몇 개 발행되어있는지 확인하는 변수
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
+    //balance의 데이터를 조회하는 것은 transaction으로 처리되지 않음
+    //어떤 노드에서 return을 해도 같은 값을 return함
 
     constructor(string memory _name, string memory _symbol, uint8 _decimal) {
         name = _name;
@@ -22,13 +24,18 @@ contract MyToken {
         //totalSupply는 첫 발행 이후 추가 발행이 안 돔
     }
     
-
     //internal 함수는 _를 붙여줌(우리만의 약속)
     function _mint(uint256 amount, address owner) internal {
         totalSupply += amount;
         balanceOf[owner] += amount;
     }
 
+    function transfer(uint256 amount, address to) external {
+        require(balanceOf[msg.sender] >= amount, "insufficient balance"); //조건에 충족되지 않을 시 발행하는 메세지
+        //require에 있는 조건을 충족해야지 아래의 코드가 실행됨
+        balanceOf[msg.sender] -= amount;
+        balanceOf[to] += amount;
+    }
     
     
 
