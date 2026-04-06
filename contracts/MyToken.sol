@@ -17,7 +17,20 @@ contract MyToken {
         name = _name;
         symbol = _symbol;
         decimals = _decimal;
+        //transaction: from, to, data, value, gas, ... 필드 있음
+        _mint(1*10**uint256(decimals), msg.sender); //1MT
+        //totalSupply는 첫 발행 이후 추가 발행이 안 돔
     }
+    
+
+    //internal 함수는 _를 붙여줌(우리만의 약속)
+    function _mint(uint256 amount, address owner) internal {
+        totalSupply += amount;
+        balanceOf[owner] += amount;
+    }
+
+    
+    
 
     /*
     //토큰을 조회할 수 있는 함수
