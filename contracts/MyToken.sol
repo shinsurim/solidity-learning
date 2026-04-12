@@ -15,12 +15,12 @@ contract MyToken {
     //balance의 데이터를 조회하는 것은 transaction으로 처리되지 않음
     //어떤 노드에서 return을 해도 같은 값을 return함
 
-    constructor(string memory _name, string memory _symbol, uint8 _decimal) {
+    constructor(string memory _name, string memory _symbol, uint8 _decimal, uint256 _amount) {
         name = _name;
         symbol = _symbol;
         decimals = _decimal;
         //transaction: from, to, data, value, gas, ... 필드 있음
-        _mint(1*10**uint256(decimals), msg.sender); //1MT
+        _mint(_amount*10**uint256(decimals), msg.sender); //1MT
         //totalSupply는 첫 발행 이후 추가 발행이 안 돔
     }
     
