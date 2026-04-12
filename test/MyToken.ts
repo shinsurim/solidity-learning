@@ -46,7 +46,7 @@ describe("My Token", () => {
   describe("Mint", ()=> {
     it("should return 1MT balance for signer 0", async () => {
       const signer0 = signers[0];
-      expect(await myTokenC.balanceOf(signer0)).equal(mintingAmount*10n**decimals);
+      expect(await myTokenC.balanceOf(signer0.address)).equal(mintingAmount*10n**decimals);
     });
   })
   
@@ -56,7 +56,7 @@ describe("My Token", () => {
       it("should have 0.5MT", async () => {
       const signer0 = signers[0];
       const signer1 = signers[1];
-      
+
       await expect( //event 체크 로직에는 expect 앞에다 await
         myTokenC.transfer(
         hre.ethers.parseUnits("0.5", decimals), 
@@ -83,4 +83,42 @@ describe("My Token", () => {
     });
   })
   
+  describe("TransferFrom", () => {
+    it("shoul emit Approval event", async () => {
+      const signer1 = signers[1];
+      await expect(myTokenC.approve(signer1.address, hre.ethers.parseUnits("10", decimals)))
+      .to.emit(myTokenC, "Approval")
+      .withArgs(signer1.address, hre.ethers.parseUnits("10", decimals))
+    });
+
+    it("should be reverted with insuffident allowance error", async() =>{
+      const signer0 = signers[0];
+      const signer1 = signers[1];
+      await expect(
+        myTokenC
+        .connect(signer1)
+        .transferFrom(
+          signer0.address, 
+          signer1.address, 
+          hre.ethers.parseUnits("1", decimals)))
+          .to.be.revertedWith("insufficient allowance");
+    })
+    it("should transfer tokens by transferFrom and check balance", async () => {
+  const signer0 = signers[0];
+  const signer1 = signers[1];
+  const amount = hre.ethers.parseUnits("10", decimals);
+
+  await myTokenC.approve(signer1.address, amount);
+
+  await expect(
+    myTokenC
+      .connect(signer1)
+      .transferFrom(signer0.address, signer1.address, amount)
+  )
+    .to.emit(myTokenC, "Transfer")
+    .withArgs(signer0.address, signer1.address, amount);
+
+  expect(await myTokenC.balanceOf(signer1.address)).equal(amount);
+  });
+  })
 });
