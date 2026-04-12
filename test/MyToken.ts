@@ -2,6 +2,7 @@ import hre from "hardhat";
 import { expect } from "chai";
 import { MyToken } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+//import MyToken from "../ignition/modules/MyToken";
 
 const mintingAmount = 100n;
 const decimals = 18n;
@@ -53,9 +54,21 @@ describe("My Token", () => {
   //state을 읽기만 하는 함수와 건드리는 함수 어떻게 처리가 되는지 정확하게 알아야함
   describe("Transfer", () => {
       it("should have 0.5MT", async () => {
+      const signer0 = signers[0];
       const signer1 = signers[1];
-      await myTokenC.transfer(hre.ethers.parseUnits("0.5", decimals), signer1.address);
-      expect(await myTokenC.balanceOf(signer1.address)).equal(hre.ethers.parseUnits("0.5", decimals));
+      
+      await expect( //event 체크 로직에는 expect 앞에다 await
+        myTokenC.transfer(
+        hre.ethers.parseUnits("0.5", decimals), 
+        signer1.address))
+        .to.emit(myTokenC, "Transfer")
+        .withArgs(
+          signer0.address, 
+          signer1.address, 
+          hre.ethers.parseUnits("0.5", decimals));
+      
+      expect(await myTokenC.balanceOf(signer1.address)).equal(
+        hre.ethers.parseUnits("0.5", decimals));
     });
 
     it("should be reverted with insufficient balance error", async () => {
