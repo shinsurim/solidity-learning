@@ -5,6 +5,9 @@
 pragma solidity ^0.8.28;
 
 contract MyToken {
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed spender, uint256 amount);
+
     string public name;
     string public symbol;
     uint8 public decimals; // uint8 --> 8 bit unsigned int, uint16, ... , uint256 / 소수점 아래 몇 자리까지 허용할지
@@ -15,6 +18,9 @@ contract MyToken {
     //balance의 데이터를 조회하는 것은 transaction으로 처리되지 않음
     //어떤 노드에서 return을 해도 같은 값을 return함
 
+    mapping(address => mapping(address => uint256)) allowance;
+    
+
     constructor(string memory _name, string memory _symbol, uint8 _decimal, uint256 _amount) {
         name = _name;
         symbol = _symbol;
@@ -23,11 +29,29 @@ contract MyToken {
         _mint(_amount*10**uint256(decimals), msg.sender); //1MT
         //totalSupply는 첫 발행 이후 추가 발행이 안 돔
     }
+
+    function approve(address spender, uint256 amount) external{
+        allowance[msg.sender][spender] = amount;
+        emit Approval(spender, amount);
+    }
+
+    //허락 받는 사람이 호출, from은 owner
+    function transferFrom(address from, address to, uint256 amount) external{
+        address spender = msg.sender;
+        require(allowance[from][spender] >= amount, "insufficient allowance");
+        allowance[from][spender] -= amount;
+        balanceOf[from] -= amount;
+        balanceOf[to] += amount;
+
+        emit Transfer(from, to, amount);
+    }
     
     //internal 함수는 _를 붙여줌(우리만의 약속)
     function _mint(uint256 amount, address owner) internal {
         totalSupply += amount;
         balanceOf[owner] += amount;
+
+        emit Transfer(address(0), owner , amount);
     }
 
     function transfer(uint256 amount, address to) external {
@@ -35,6 +59,8 @@ contract MyToken {
         //require에 있는 조건을 충족해야지 아래의 코드가 실행됨
         balanceOf[msg.sender] -= amount;
         balanceOf[to] += amount;
+
+        emit Transfer(msg.sender, to, amount);
     }
     
     
