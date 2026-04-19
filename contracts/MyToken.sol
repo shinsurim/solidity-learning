@@ -18,7 +18,7 @@ contract MyToken {
     //balance의 데이터를 조회하는 것은 transaction으로 처리되지 않음
     //어떤 노드에서 return을 해도 같은 값을 return함
 
-    mapping(address => mapping(address => uint256)) allowance;
+    mapping(address => mapping(address => uint256)) public allowance;
     
 
     constructor(string memory _name, string memory _symbol, uint8 _decimal, uint256 _amount) {
