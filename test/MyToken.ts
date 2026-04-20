@@ -2,10 +2,8 @@ import hre from "hardhat";
 import { expect } from "chai";
 import { MyToken } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { DECIMALS, MINTING_AMOUNT } from "./constant";
 //import MyToken from "../ignition/modules/MyToken";
-
-const MINTING_AMOUNT = 100n;
-const DECIMALS = 18n;
 
 describe("My Token", () => {
   let myTokenC: MyToken;
@@ -20,8 +18,8 @@ describe("My Token", () => {
     myTokenC = await hre.ethers.deployContract("MyToken", [
       "MyToken",
       "MT",
-      18,
-      100
+      DECIMALS,
+      MINTING_AMOUNT
     ]);
   });
 
