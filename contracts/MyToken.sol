@@ -45,6 +45,10 @@ contract MyToken {
 
         emit Transfer(from, to, amount);
     }
+
+    function mint(uint256 amount, address owner) external{
+        _mint(amount, owner);
+    }
     
     //internal 함수는 _를 붙여줌(우리만의 약속)
     function _mint(uint256 amount, address owner) internal {
