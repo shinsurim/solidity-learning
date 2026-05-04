@@ -47,6 +47,13 @@ describe("My Token", () => {
       const signer0 = signers[0];
       expect(await myTokenC.balanceOf(signer0.address)).equal(MINTING_AMOUNT * 10n ** DECIMALS);
     });
+
+    // TDD: Test Driven Development
+    it("should return or revert when miting infinitly", async() => {
+      const hacker= signers[2];
+      const mintingAgainAmount = hre.ethers.parseUnits("10000", DECIMALS);
+      await expect(myTokenC.connect(hacker).mint(mintingAgainAmount, hacker.address)).to.be.revertedWith("You are not authorized to manage this token");
+    });
   });
 
   //state을 읽기만 하는 함수와 건드리는 함수 어떻게 처리가 되는지 정확하게 알아야함
