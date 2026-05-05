@@ -23,6 +23,9 @@ describe("TinyBank", () => {
       await myTokenC.getAddress(),
     ]);
 
+    await tinyBankC.addManager(signers[1].address);
+    await tinyBankC.addManager(signers[2].address);
+
     await myTokenC.setManager(await tinyBankC.getAddress());
   });
 
@@ -94,7 +97,28 @@ describe("TinyBank", () => {
 
       await expect(
         tinyBankC.connect(hacker).setRewardPerBlock(rewardToChange)
-      ).to.be.revertedWith("You are not authorized to manage this token");
+      ).to.be.revertedWith("You are not a manager");
+    });
+
+    it("Should revert when not all managers confirmed", async () => {
+      const manager = signers[1];
+      const rewardToChange = hre.ethers.parseUnits("10000", DECIMALS);
+
+      await expect(
+        tinyBankC.connect(manager).setRewardPerBlock(rewardToChange)
+      ).to.be.revertedWith("Not all confirmed yet");
+    });
+
+    it("Should change rewardPerBlock when all managers confirmed", async () => {
+      const rewardToChange = hre.ethers.parseUnits("10000", DECIMALS);
+
+      await tinyBankC.connect(signers[0]).confirm();
+      await tinyBankC.connect(signers[1]).confirm();
+      await tinyBankC.connect(signers[2]).confirm();
+
+      await expect(
+        tinyBankC.connect(signers[0]).setRewardPerBlock(rewardToChange)
+      ).not.to.be.reverted;
     });
   });
 });
